@@ -1,0 +1,95 @@
+from GUI.tree import TreeNode
+from tkinter import *
+from GUI.settings import *
+from parsers.terminals import *
+Importing necessary modules and classes from other files.
+ 
+  
+class Rule:
+Defining a class named Rule.
+ 
+  
+    GRAMMAR = {
+        'E': [['T', 'E\'']],
+        'E\'': [['+', 'T', 'E\''], ['']],
+        'T': [['F', 'T\'']],
+        'T\'': [['*', 'F', 'T\''], ['']],
+        'F': [['(', 'E', ')'], ['id']]
+    }
+Defining a static variable GRAMMAR which represents the grammar rules as a dictionary.
+ 
+  
+    def __init__(self, rule_name, rules=None):
+        self.__rule_name = rule_name
+        self.rule_dict = rules if rules else Rule.GRAMMAR
+Initializing the Rule object with a rule_name and optional rules dictionary.
+ 
+  
+    def __str__(self):
+        return self.__rule_name
+Overriding the __str__ method to return the rule_name
+when the object is converted to a string.
+ 
+  
+    def raise_exception(self, input):
+        raise Exception(f'{self.__str__()} rule can\'t parse {input}')
+A method to raise an exception when the rule fails to parse the input.
+ 
+  
+    def propagate(self, input):
+        id = self.check_identifier(input)
+        num = self.check_int(input)
+        str = 'id' if id else 'Num' if num else input
+        try:
+            children = self.rule_dict[str]
+        except KeyError:
+            self.raise_exception(input)
+        self.add_children(children)
+        children = self.get_children()
+        if isinstance(children[0], (NumTerminal, IDTerminal)):
+            children[0].set_label(input)
+        return children
+A method to propagate the rule with the given input.
+It checks whether the input is an identifier (id), integer (Num),
+or neighter and retrieves the appropriate children from the rule_dict.
+It adds the children to the rule, sets the label for the first child
+if it is a NumTerminal or IDTerminal, and returns the children.
+ 
+  
+    @staticmethod
+    def check_identifier(input):
+        try:
+            int(input[0])
+            return False
+        except:
+            for char in input:
+                if not ((char >= '0' and char <= '9') or (char >= 'a' and char <= 'z') or (char >= 'A' and char <= 'Z')):
+                    return False
+        return True
+A static method to check if the given input is an identifier.
+ 
+  
+    @staticmethod
+    def check_int(input):
+        try:
+            int(input[0])
+            return True
+        except:
+            return False
+A static method to check if the given input is an integer.
+ 
+  
+class Exp(TreeNode, Rule):
+Defining a class named Exp which inherits from TreeNode and Rule.
+ 
+  
+    def __init__(self, treecanvas, level, parent, left, right):
+        rules = {
+            '(': [Term, ExpDash],
+            'id': [Term, ExpDash]
+        }
+        super().__init__(treecanvas, level, parent, left, right, None, 'Exp', False)
+        Rule.__init__(self, rule_name='E', rules=rules)
+Initializing an Exp object. It defines the rules for the Exp node and calls the superclass initializers from TreeNode and Rule.
+The code continues with similar structures for classes ExpDash, Addop, Mullop, Factor, Term, and TermDash. Each class represents a specific node type in the tree and inherits from TreeNode and Rule.
+The classes define their specific rules and initialize themselves as tree nodes.

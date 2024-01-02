@@ -1,0 +1,112 @@
+from tkinter import SEPARATOR
+from parsers.terminals import *
+This line imports the SEPARATOR constant from the tkinter module and imports all the necessary terminals from the parsers.terminals module.
+python
+  
+class TempNode:
+This line defines a class named TempNode.
+ 
+  
+    def __init__(self, left, right, terminal) -> None:
+        self.__left = left
+        self.__right = right
+        self.terminal = terminal
+This is the initializer method of the TempNode class. It takes left, right, and terminal parameters. It assigns the left and right values to private instance variables (__left and __right) and assigns the terminal value to the terminal instance variable.
+ 
+  
+    def drawnode(self, canvas=None, level=0, parent=None, left=0, right=0, curr=None):
+        if not curr:
+            curr = self.terminal.__class__(canvas, level, parent, left, right)
+            curr.draw()
+This method is used to draw a node on the canvas. It takes several parameters but has default values for all of them. If curr is not provided, it creates an instance of the terminal's class using the canvas, level, parent, left, and right values. Then, it calls the draw() method on the curr object.
+ 
+  
+        if self.__left:
+            curr.add_children([self.__left.terminal.__class__])
+            children = curr.get_children()
+            children[0].set_label(self.__left.terminal.__str__())
+            self.__left.drawnode(curr=children[0])
+If self.__left exists, it adds the left child to the curr node, sets its label, and calls the drawnode() method recursively on the left child.
+ 
+  
+        if self.__right:
+            curr.add_children([self.__right.terminal.__class__])
+            children = curr.get_children()
+            children[-1].set_label(self.__right.terminal.__str__())
+            self.__right.drawnode(curr=children[-1])
+If self.__right exists, it adds the right child to the curr node, sets its label, and calls the drawnode() method recursively on the right child.
+ 
+  
+class AbstractSyntaxAnalyzer:
+This line defines a class named AbstractSyntaxAnalyzer.
+ 
+  
+    TERMINALS = (IDTerminal, NumTerminal, plusTerminal, minusTerminal, multiplyTerminal, divisionTerminal)
+    SEPARATOR = (leftBracketTerminal)
+    TERMINATOR = (rightBracketTerminal)
+These lines define class-level constants. TERMINALS is a tuple containing classes representing different terminal types. SEPARATOR is a tuple containing the class representing the separator type. TERMINATOR is a tuple containing the class representing the terminator type.
+ 
+  
+    def __init__(self, terminals, treecanvas, width):
+        self.__terminals = terminals
+        self.__tree_canvas = treecanvas
+        self.__width = max(width, self.__tree_canvas.winfo_width())
+        self.__filter()
+        self.__generate()
+This is the initializer method of the AbstractSyntaxAnalyzer class. It takes terminals, treecanvas, and width as parameters. It assigns the parameter values to private instance variables (__terminals, __tree_canvas, and __width). Then, it calls the __filter() and __generate() methods.
+ 
+  
+    def __filter(self):
+        list = []
+        i = 0
+        while i < len(self.__terminals):
+            if isinstance(self.__terminals[i], self.TERMINALS):
+                list.append(self.__terminals[i])
+            elif isinstance(self.__terminals[i], self.SEPARATOR):
+                lst = []
+                while i < len(self.__terminals):
+                    i += 1
+                    if isinstance(self.__terminals[i], self.TERMINALS):
+                        lst.append(self.__terminals[i])
+                    elif isinstance(self.__terminals[i], self.TERMINATOR):
+                        list.append(lst)
+                        break
+            i += 1
+        self.__terminals = list
+This method is used to filter the terminals based on certain patterns. It iterates over the self.__terminals list and checks if each terminal is an instance of TERMINALS or SEPARATOR. It appends the terminals to a new list called list. If a separator is found, it creates a new list (lst) and adds subsequent terminals of type TERMINALS to it until a TERMINATOR terminal is found. Then, it appends lst to list.
+ 
+  
+    @staticmethod
+    def largest_priority(list):
+        max_priority = 0
+        for i in range(1, len(list)):
+            if isinstance(list[i], TreeNode):
+                if list[i].priority >= list[max_priority].priority:
+                    max_priority = i
+        return max_priority
+This is a static method that determines the index of the element with the largest priority in a given list. It takes a list as a parameter and returns the index of the element with the highest priority.
+ 
+  
+    @staticmethod
+    def generate_tree(list):
+        if len(list) == 0:
+            return None
+        if len(list) == 1:
+            if isinstance(list[0], TreeNode):
+                return TempNode(None, None, list[0])
+            else:
+                list = list[0]
+        split_index = AbstractSyntaxAnalyzer.largest_priority(list)
+        return TempNode(
+            AbstractSyntaxAnalyzer.generate_tree(list[:split_index]),
+            AbstractSyntaxAnalyzer.generate_tree(list[split_index + 1:]),
+            list[split_index]
+        )
+This is a static method that generates an abstract syntax tree (AST) recursively from a given list. It takes a list as a parameter, checks its length, and determines if it needs further processing or if it's already a complete tree. If the list is empty, it returns None. If the list has only one element and it's of type TreeNode, it creates a TempNode with left and right set to None and assigns the element to terminal. Otherwise, if the list has more than one element, it finds the split index (the element with the highest priority) using the largest_priority() method. Then, it recursively generates the left and right subtrees by calling generate_tree() with appropriate slice notation. Finally, it creates a TempNode with the generated subtrees and the element at the split index.
+ 
+  
+    def __generate(self):
+        root = AbstractSyntaxAnalyzer.generate_tree(self.__terminals)
+        root.drawnode(self.__tree_canvas, 0, None, 0, self.__width)
+This method generates the abstract syntax tree by calling the generate_tree() static method with the self.__terminals list as the parameter. It assigns the resulting tree to the root variable. Then, it draws the root node by calling the drawnode() method on the root object, passing the __tree_canvas, 0, None, 0, and self.__width values as arguments.
+Overall, this code seems to define classes and methods to facilitate the generation and drawing of an abstract syntax tree based on a given list of terminals.

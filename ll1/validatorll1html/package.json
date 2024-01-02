@@ -1,0 +1,16 @@
+{
+  "name": "validatorll1html",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "start ./src/validatorll1.html",
+    "tailwind": "npx tailwindcss -i ./src/input.css -o ./dist/output.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.3.5"
+  }
+}

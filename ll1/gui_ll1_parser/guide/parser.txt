@@ -1,0 +1,91 @@
+from GUI.tree import TreeNode
+from parsers.grammar import *
+from parsers.terminals import *
+Importing necessary modules and classes from other files.
+ 
+  
+class Parser:
+Defining a class named Parser.
+ 
+  
+    SPLIT_TERMINALS = ('+' , '-' , '*' , '/' , ')' , '(')
+Defining a static variable SPLIT_TERMINALS that contains a tuple of characters which will be used to split tokens from the input string.
+ 
+  
+    def __init__(self, parsetreecanvas, start_rule):
+        self.__parsetreecanvas = parsetreecanvas
+        self.__start_rule = start_rule
+Initializing the Parser object with a parsetreecanvas and start_rule.
+ 
+  
+    @staticmethod
+    def join_list(input):
+        str = ''
+        for grammar in input[:]:
+            if isinstance(grammar, TreeNode):
+                str += grammar.__repr__()
+            else:
+                str += grammar
+        return str
+A static method join_list that takes a list of items input and joins them into a string. If an item is an instance of TreeNode, it gets represented using the __repr__ method.
+ 
+  
+    def __parse_input(self, input):
+        tokens = []
+        str = ''
+        for char in input:
+            if char in self.SPLIT_TERMINALS:
+                if str:
+                    tokens.append(str)
+                tokens.append(char)
+                str = ''
+            elif char != ' ' or (str and char == ' '):
+                str += char
+
+        if str:
+            tokens.append(str)
+        tokens.append('$')
+        return tokens
+A private method __parse_input that takes an input string, splits it into tokens based on the characters in SPLIT_TERMINALS, and appends a $ symbol to indicate the end of input. The tokens are stored in a list and returned.
+ 
+  
+    def parse(self, input, action_table):
+        terminals = []
+        initial_exp = self.__start_rule(self.__parsetreecanvas, 0, None, 0, self.__parsetreecanvas.winfo_width())
+        initial_exp.draw()
+        stack = [initial_exp, '$']
+        input = self.__parse_input(input)
+        action = ''
+        while len(input) > 0:
+            stack_state = Parser.join_list(stack)
+            input_state = ''.join(input)
+            rule = stack.pop(0)
+            if isinstance(rule, Rule):
+                try:
+                    rules = rule.propagate(input[0])
+                except Exception as e:
+                    action_table.append([stack_state, input_state, e.__str__()])
+                    raise Exception()
+                action = rule.__repr__() + '\u2192'
+                for i in range(len(rules)):
+                    action += rules[i].__repr__()
+                    stack.insert(i, rules[i])
+            elif isinstance(rule, EpsilonTerminal):
+                action = 'remove epsilon'
+                terminals.append(rule)
+            else:
+                terminals.append(rule)
+                if rule.__str__() == input[0]:
+                    action = f'match , pop({input[0]})'
+                    input.__delitem__(0)
+                else:
+                    action_table.append([stack_state, input_state, 'Error terminals don\'t match'])
+                    raise Exception()
+            action_table.append([stack_state, input_state, action])
+
+        return terminals[:-1]
+A method parse that takes an input string and an action_table. It initializes a list terminals to store the terminals encountered while parsing. It creates an initial expression tree node initial_exp based on the start_rule and draws it on the parsetreecanvas. It initializes the stack with the initial expression node and $ symbol. It modifies the input string by calling __parse_input to split it into tokens.
+
+The method then starts the parsing process. It iterates until there are tokens in the input. For each iteration, it pops an element from the stack and checks its type. If it's an instance of Rule, it propagates the rule with the current input token, adds the propagated rules to the stack, and constructs an action string. If it's an instance of EpsilonTerminal, it removes the epsilon symbol and appends it to the terminals. If it's a terminal symbol, it matches it with the current input token, removes the matched token from the input, and appends it to the terminals. If there's a mismatch between the terminal and input token, an exception is raised.
+
+After each iteration, the stack_state (representing the current stack) and input_state (representing the current input) are recorded along with the action in the action_table. Finally, the method returns the terminals list except for the last element (which is the $ symbol).

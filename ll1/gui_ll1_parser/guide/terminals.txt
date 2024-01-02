@@ -1,0 +1,77 @@
+
+from GUI.tree import TreeNode
+from GUI.settings import EPSILON
+Importing the TreeNode class from the tree module and the EPSILON constant from the settings module of the GUI package.
+  
+  
+class plusTerminal(TreeNode):
+    def __init__(self, treecanvas, level, parent, left, right,):
+        super().__init__(treecanvas, level, parent, left, right, None, '+', True)
+        self.pirority = 2
+Defining a class plusTerminal that inherits from the TreeNode class. It overrides the __init__ method to initialize the plusTerminal object with specific attributes such as treecanvas, level, parent, left, right, and a label of '+'. It also sets the pirority attribute to 2.
+  
+  
+class minusTerminal(TreeNode):
+    def __init__(self, treecanvas, level, parent, left, right,):
+        super().__init__(treecanvas, level, parent, left, right, None, '-', True)
+        self.pirority = 2
+Similar to plusTerminal, this class minusTerminal represents the minus symbol '-'.
+  
+  
+class leftBracketTerminal(TreeNode):
+    def __init__(self, treecanvas, level, parent, left, right,):
+        super().__init__(treecanvas, level, parent, left, right, None, '(', True)
+This class leftBracketTerminal represents the left bracket symbol '('.
+  
+  
+class rightBracketTerminal(TreeNode):
+    def __init__(self, treecanvas, level, parent, left, right,):
+        super().__init__(treecanvas, level, parent, left, right, None, ')', True)
+This class rightBracketTerminal represents the right bracket symbol ')'.
+  
+  
+class multiplyTerminal(TreeNode):
+    def __init__(self, treecanvas, level, parent, left, right,):
+        super().__init__(treecanvas, level, parent, left, right, None, '*', True)
+        self.pirority = 1
+This class multiplyTerminal represents the multiplication symbol '*'. It sets the pirority attribute to 1.
+  
+  
+class divisionTerminal(TreeNode):
+    def __init__(self, treecanvas, level, parent, left, right,):
+        super().__init__(treecanvas, level, parent, left, right, None, '/', True)
+        self.pirority = 1
+This class divisionTerminal represents the division symbol '/'. It sets the pirority attribute to 1.
+  
+  
+class EpsilonTerminal(TreeNode):
+    def __init__(self, treecanvas, level, parent, left, right,):
+        super().__init__(treecanvas, level, parent, left, right, None, EPSILON, True)
+This class EpsilonTerminal represents the epsilon symbol EPSILON (imported from GUI.settings). Epsilon is typically used to denote an empty string in context-free grammars.
+  
+  
+class dollarTerminal(TreeNode):
+    def __init__(self, treecanvas, level, parent, left, right,):
+        super().__init__(treecanvas, level, parent, left, right, None, '$', True)
+This class dollarTerminal represents the dollar symbol '$', which is often used to mark the end of input in parsing algorithms.
+  
+  
+class IDTerminal(TreeNode):
+    def __init__(self, treecanvas, level, parent, left, right,):
+        super().__init__(treecanvas, level, parent, left, right, None, 'id', True)
+        self.pirority = 0
+
+    def __repr__(self) -> str:
+        return 'id'
+This class IDTerminal represents an identifier token 'id'. It sets the pirority attribute to 0 and overrides the __repr__ method to return the string 'id'.
+  
+  
+class NumTerminal(TreeNode):
+    def __init__(self, treecanvas, level, parent, left, right,):
+        super().__init__(treecanvas, level, parent, left, right, None, 'Num', True)
+        self.pirority = 0
+
+    def __repr__(self) -> str:
+        return 'Num'
+This class NumTerminal represents a numeric token 'Num'. It sets the pirority attribute to 0 and overrides the __repr__ method to return the string 'Num'.
+These classes represent different types of terminals used in parsing. Each class inherits from the TreeNode class and defines its own initialization method (__init__). The super() function is called to invoke the __init__ method of the TreeNode class with the appropriate arguments. Additional attributes specific to each terminal class are set accordingly.
